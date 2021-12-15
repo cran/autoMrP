@@ -332,8 +332,18 @@ This package improves the prediction performance of multilevel
 regression with post-stratification (MrP) by combining a number of machine
 learning methods through ensemble Bayesian model averaging (EBMA).
 }
+\details{
+Bootstrapping samples the level two units, sometimes referred to as
+  the cluster bootstrap. For the multilevel model, for example, when running
+  MrP only, the bootstrapped median level two predictions will differ from
+  the level two predictions without bootstrapping. We recommend assessing the
+  difference by running autoMrP without bootstrapping alongside autoMrP with
+  bootstrapping and then comparing level two predictions from the model
+  without bootstrapping to the median level two predictions from the model
+  with bootstrapping.
+}
 \examples{
-# Minimal example without machine learning
+# An MrP model without machine learning
 m <- auto_MrP(
   y = "YES",
   L1.x = c("L1x1"),
@@ -395,12 +405,12 @@ ml_out <- auto_MrP(
   svm.L2.reg = TRUE,
   cores = max_cores
   )
-  }
 }
+}
+\keyword{Bayesian}
 \keyword{EBMA}
 \keyword{MRP}
 \keyword{averaging}
-\keyword{bayesian}
 \keyword{ensemble}
 \keyword{learning}
 \keyword{machine}
