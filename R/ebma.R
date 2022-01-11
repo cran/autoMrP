@@ -54,7 +54,7 @@ ebma <- function(ebma.fold, y, L1.x, L2.x, L2.unit, L2.reg, pc.names,
 
     # Training predictions
     train_preds <- post.strat$predictions$Level1 %>%
-      dplyr::select(-one_of(y))
+      dplyr::select(-dplyr::one_of(y))
 
     # Training set outcomes
     train_y <- dplyr::pull(.data = post.strat$predictions$Level1, var = y)
@@ -161,7 +161,10 @@ ebma <- function(ebma.fold, y, L1.x, L2.x, L2.unit, L2.reg, pc.names,
               predict(object = model_pca, newdata = test, type = "response", allow.new.levels = TRUE)
             } else{NA},
             lasso = if(!is.null(model_lasso)){
-              predict_glmmLasso(census = test, m = model_lasso, L1.x = L1.x, lasso.L2.x = L2.x, L2.unit = L2.unit, L2.reg = L2.reg)
+              predict_glmmLasso(census = test, m = model_lasso, L1.x = L1.x,
+                                lasso.L2.x = L2.x, L2.unit = L2.unit, L2.reg = L2.reg)
+              #predict(object = model_lasso, newdata = as.data.frame(test), type = "response",
+              #        allow.new.levels = TRUE)
             } else{NA},
             gb = if(!is.null(model_gb)){
               gbm::predict.gbm(object = model_gb, newdata = test, n.trees = model_gb$n.trees, type = "response")
@@ -178,7 +181,7 @@ ebma <- function(ebma.fold, y, L1.x, L2.x, L2.unit, L2.reg, pc.names,
             all(!is.na(x))})]
 
           # outcome on the test
-          # test_y <- dplyr::select(.data = test, one_of(y))
+          # test_y <- dplyr::select(.data = test, dplyr::one_of(y))
           test_y <- dplyr::pull(.data = test, y)
 
           # EBMA
@@ -189,11 +192,20 @@ ebma <- function(ebma.fold, y, L1.x, L2.x, L2.unit, L2.reg, pc.names,
               .predTest = data.frame(test_preds),
               .outcomeTest = test_y)
 
+            # vector of initial model weights
+            # Note: On some Mac versions the model weights do not sum to exactly
+            # 1 for repeating decimal weights
+            W <- rep(x = 1 / ncol(forecast.data@predCalibration),
+                     times = ncol(forecast.data@predCalibration))
+            W[length(W)] <- 1 - sum(W[-length(W)])
+
+            # calibrate EBMA ensemble
             forecast.out <- EBMAforecast::calibrateEnsemble(
               forecast.data,
               model = "normal",
               useModelParams = FALSE,
-              tol = tol[idx.tol])
+              tol = tol[idx.tol],
+              W = W)
 
           } else {
             forecast.data <- quiet(
@@ -204,11 +216,20 @@ ebma <- function(ebma.fold, y, L1.x, L2.x, L2.unit, L2.reg, pc.names,
                 .outcomeTest = as.numeric(unlist(test_y)))
             )
 
+            # vector of initial model weights
+            # Note: On some Mac versions the model weights do not sum to exactly
+            # 1 for repeating decimal weights
+            W <- rep(x = 1 / ncol(forecast.data@predCalibration),
+                     times = ncol(forecast.data@predCalibration))
+            W[length(W)] <- 1 - sum(W[-length(W)])
+
+            # calibrate EBMA ensemble
             forecast.out <- quiet(EBMAforecast::calibrateEnsemble(
               forecast.data,
               model = "normal",
               useModelParams = FALSE,
-              tol = tol[idx.tol]))
+              tol = tol[idx.tol],
+              W = W))
 
           }
 
@@ -367,7 +388,10 @@ ebma_mc_tol <- function(train.preds, train.y, ebma.fold,
         predict(object = model.pca, newdata = test, type = "response", allow.new.levels = TRUE)
       } else{NA},
       lasso = if(!is.null(model.lasso)){
-        predict_glmmLasso(census = test, m = model.lasso, L1.x = L1.x, lasso.L2.x = L2.x, L2.unit = L2.unit, L2.reg = L2.reg)
+        predict_glmmLasso(census = test, m = model.lasso, L1.x = L1.x,
+                          lasso.L2.x = L2.x, L2.unit = L2.unit, L2.reg = L2.reg)
+        #predict(object = model.lasso, newdata = as.data.frame(test), type = "response",
+        #        allow.new.levels = TRUE)
       } else{NA},
       gb = if(!is.null(model.gb)){
         gbm::predict.gbm(object = model.gb, newdata = test, n.trees = model.gb$n.trees, type = "response")
@@ -384,7 +408,7 @@ ebma_mc_tol <- function(train.preds, train.y, ebma.fold,
       all(!is.na(x))})]
 
     # Outcome on the test
-    test_y <- dplyr::select(.data = test, one_of(y))
+    test_y <- dplyr::select(.data = test, dplyr::one_of(y))
 
     # Register cores
     cl <- multicore(cores = cores, type = "open", cl = NULL)
@@ -401,11 +425,20 @@ ebma_mc_tol <- function(train.preds, train.y, ebma.fold,
           .outcomeTest = as.numeric(unlist(test_y)))
       )
 
+      # vector of initial model weights
+      # Note: On some Mac versions the model weights do not sum to exactly
+      # 1 for repeating decimal weights
+      W <- rep(x = 1 / ncol(forecast.data@predCalibration),
+               times = ncol(forecast.data@predCalibration))
+      W[length(W)] <- 1 - sum(W[-length(W)])
+
+      # calibrate EBMA ensemble
       forecast.out <- EBMAforecast::calibrateEnsemble(
         forecast.data,
         model = "normal",
         useModelParams = FALSE,
-        tol = tol[idx.tol])
+        tol = tol[idx.tol],
+        W = W)
 
       # mse
       mse_collector <- mean(( as.numeric(unlist(test_y)) -
@@ -510,7 +543,10 @@ ebma_mc_draws <- function(
         predict(object = model.pca, newdata = test, type = "response", allow.new.levels = TRUE)
       } else{NA},
       lasso = if(!is.null(model.lasso)){
-        predict_glmmLasso(census = test, m = model.lasso, L1.x = L1.x, lasso.L2.x = L2.x, L2.unit = L2.unit, L2.reg = L2.reg)
+        #predict(object = model.lasso, newdata = as.data.frame(test), type = "response",
+        #        allow.new.levels = TRUE)
+        predict_glmmLasso(census = test, m = model.lasso, L1.x = L1.x,
+                          lasso.L2.x = L2.x, L2.unit = L2.unit, L2.reg = L2.reg)
       } else{NA},
       gb = if(!is.null(model.gb)){
         gbm::predict.gbm(object = model.gb, newdata = test, n.trees = model.gb$n.trees, type = "response")
@@ -527,7 +563,7 @@ ebma_mc_draws <- function(
       all(!is.na(x))})]
 
     # Outcome on the test
-    test_y <- dplyr::select(.data = test, one_of(y))
+    test_y <- dplyr::select(.data = test, dplyr::one_of(y))
 
     # Container of MSEs per tolerance value and draw combination
     mse_collector <- NA
@@ -549,11 +585,20 @@ ebma_mc_draws <- function(
           .outcomeTest = as.numeric(unlist(test_y)))
       )
 
+      # vector of initial model weights
+      # Note: On some Mac versions the model weights do not sum to exactly
+      # 1 for repeating decimal weights
+      W <- rep(x = 1 / ncol(forecast.data@predCalibration),
+               times = ncol(forecast.data@predCalibration))
+      W[length(W)] <- 1 - sum(W[-length(W)])
+
+      # calibrate EBMA ensemble
       forecast.out <- EBMAforecast::calibrateEnsemble(
         forecast.data,
         model = "normal",
         useModelParams = FALSE,
-        tol = tol[idx.tol])
+        tol = tol[idx.tol],
+        W = W)
 
       # mse
       mse_collector[idx.tol] <- mean(( as.numeric(unlist(test_y)) -
