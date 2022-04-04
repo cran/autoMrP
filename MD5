@@ -1,4 +1,4 @@
-d431619aaf9ee2cb3f3663991bee2729 *DESCRIPTION
+0cdf91ad6d34bf33aa4640893d8483d2 *DESCRIPTION
 7d2fbbbfd73cb2c35eaf66ed5b4e5b17 *NAMESPACE
 32caec73bb97ebf07541e3a3241c037a *NEWS.md
 8e2cd6fe910b265373cca320ed7f6223 *R/absentee_census.R
@@ -24,10 +24,10 @@ e13a68ad77a3ecedd694d36456e283a3 *R/survey_data.R
 68de2706a0702f7f5d8e43c5c2a82608 *R/taxes_census.R
 c421c47ee8af3f6c13b5935546594b39 *R/taxes_survey.R
 aa9560d5779f92a9d163b59cd0ddfe52 *R/taxes_truth.R
-f4c398c884f2f9250f23c2c42480d1dd *R/utils.R
+1c9622bec57690d1157721f27294f145 *R/utils.R
 81aefbec5e470cfa606fb13e9dd2096a *R/zzz.R
 77bc67248992ba827e1f647fcd1ff227 *README.md
-a64b08acf199fbe4039fcd19e98dfa41 *build/vignette.rds
+b21d934c1462d61d41ea7ea3f77c83c3 *build/vignette.rds
 30a5b6c4ba57157b0b7b20ab0c1096d4 *data/absentee_census.RData
 1985140a9a717c09bacfe2a9bfeb2047 *data/absentee_voting.RData
 b74ae4ae6c56c511b38558250f573544 *data/census.RData

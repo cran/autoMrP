@@ -1,7 +1,7 @@
 Package: autoMrP
 Type: Package
 Title: Improving MrP with Ensemble Learning
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(
     person(given = "Reto",
 		   family = "Wüest",
@@ -45,11 +45,11 @@ LazyData: true
 RoxygenNote: 7.1.2
 VignetteBuilder: R.rsp
 NeedsCompilation: no
-Packaged: 2022-02-07 12:58:04 UTC; philibro
+Packaged: 2022-04-04 16:11:43 UTC; philibro
 Author: Reto Wüest [aut] (<https://orcid.org/0000-0002-7502-6489>),
   Lucas Leemann [aut] (<https://orcid.org/0000-0001-5201-869X>),
   Philipp Broniecki [aut, cre] (<https://orcid.org/0000-0001-9214-4404>),
   Hadley Wickham [ctb]
 Maintainer: Philipp Broniecki <philippbroniecki@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-02-07 15:10:02 UTC
+Date/Publication: 2022-04-04 16:30:07 UTC
