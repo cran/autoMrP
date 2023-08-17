@@ -18,6 +18,7 @@ auto_MrP(
   survey,
   census,
   ebma.size = 1/3,
+  stacking = FALSE,
   cores = 1,
   k.folds = 5,
   cv.sampling = "L2 units",
@@ -125,6 +126,11 @@ otherwise.}
 indicating the proportion of respondents to be allocated to the EBMA fold.
 Default is \eqn{1/3}. \emph{Note:} ignored if \code{folds} is provided, but
 must be specified otherwise.}
+
+\item{stacking}{Model averaging via stacking. Stacking is an alternative to
+EBMA. Default is \code{FALSE}. If set to TRUE a model ensemble is generated
+via stacking. \code{ebma.size} must be set to 0 if stacking is \code{TRUE}.
+Stacking is faster than EBMA.}
 
 \item{cores}{The number of cores to be used. An integer indicating the number
 of processor cores used for parallel computing. Default is 1.}
@@ -353,7 +359,7 @@ m <- auto_MrP(
   survey = taxes_survey,
   census = taxes_census,
   ebma.size = 0,
-  cores = max_cores,
+  cores = 2,
   best.subset = FALSE,
   lasso = FALSE,
   pca = FALSE,
@@ -403,7 +409,7 @@ ml_out <- auto_MrP(
   census = taxes_census,
   gb.L2.reg = TRUE,
   svm.L2.reg = TRUE,
-  cores = max_cores
+  cores = min(2, max_cores)
   )
 }
 }
