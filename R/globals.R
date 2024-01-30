@@ -42,4 +42,6 @@ globalVariables(c("%>%",
                   "ub",
                   "value",
                   "verbose",
-                  "y_svm"))
+                  "y_svm",
+                  "deep_mrp",
+                  "gaussian"))

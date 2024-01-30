@@ -29,7 +29,7 @@ boot_auto_mrp(
   gb,
   svm,
   mrp,
-  forward.select,
+  deep.mrp,
   best.subset.L2.x,
   lasso.L2.x,
   pca.L2.x,
@@ -40,6 +40,9 @@ boot_auto_mrp(
   svm.L2.reg,
   gb.L2.unit,
   gb.L2.reg,
+  deep.L2.x,
+  deep.L2.reg,
+  deep.splines,
   lasso.lambda,
   lasso.n.iter,
   gb.interaction.depth,
@@ -68,14 +71,16 @@ is specified in argument \code{L2.unit}.}
 
 \item{L2.x}{Context-level covariates. A character vector containing the
 column names of the context-level variables in \code{survey} and
-\code{census} used to predict outcome \code{y}.}
+\code{census} used to predict outcome \code{y}. To exclude context-level
+variables, set \code{L2.x = NULL}.}
 
 \item{mrp.L2.x}{MRP context-level covariates. A character vector containing
 the column names of the context-level variables in \code{survey} and
 \code{census} to be used by the MRP classifier. The character vector
 \emph{empty} if no context-level variables should be used by the MRP
 classifier. If \code{NULL} and \code{mrp} is set to \code{TRUE}, then MRP
-uses the variables specified in \code{L2.x}. Default is \code{NULL}.}
+uses the variables specified in \code{L2.x}. Default is \code{NULL}. Note:
+For the empty MrP model, set \code{L2.x = NULL} and \code{mrp.L2.x = ""}.}
 
 \item{L2.unit}{Geographic unit. A character scalar containing the column
 name of the geographic unit in \code{survey} and \code{census} at which
@@ -182,11 +187,9 @@ classifier should be used for predicting outcome \code{y}. Default is
 MRP classifier should be used for predicting outcome \code{y}. Default is
 \code{FALSE}.}
 
-\item{forward.select}{Forward selection classifier. A logical argument
-indicating whether to use forward selection rather than best subset
-selection. Default is \code{FALSE}. \emph{Note:} forward selection is
-recommended if there are more than \eqn{8} context-level variables.
-\emph{Note:} forward selection is not implemented yet.}
+\item{deep.mrp}{Deep MRP classifier. A logical argument indicating whether
+the deep MRP classifier should be used for predicting outcome \code{y}.
+Default is \code{FALSE}.}
 
 \item{best.subset.L2.x}{Best subset context-level covariates. A character
 vector containing the column names of the context-level variables in
@@ -238,6 +241,19 @@ the column names of the context-level variables in \code{survey} and
 \code{L2.reg} should be included in the GB classifier. Default is
 \code{FALSE}.}
 
+\item{deep.L2.x}{Deep MRP context-level covariates. A character vector
+containing the column names of the context-level variables in \code{survey}
+and \code{census} to be used by the deep MRP classifier. If \code{NULL} and
+\code{deep.mrp} is set to \code{TRUE}, then deep MRP uses the variables
+specified in \code{L2.x}. Default is \code{NULL}.}
+
+\item{deep.L2.reg}{Deep MRP L2.reg. A logical argument indicating whether
+\code{L2.reg} should be included in the deep MRP classifier. Default is
+\code{TRUE}.}
+
+\item{deep.splines}{Deep MRP splines. A logical argument indicating whether
+splines should be used in the deep MRP classifier. Default is \code{TRUE}.}
+
 \item{lasso.lambda}{Lasso penalty parameter. A numeric \code{vector} of
 non-negative values. The penalty parameter controls the shrinkage of the
 context-level variables in the lasso model. Default is a sequence with
@@ -245,9 +261,9 @@ minimum 0.1 and maximum 250 that is equally spaced on the log-scale. The
 number of values is controlled by the \code{lasso.n.iter} parameter.}
 
 \item{lasso.n.iter}{Lasso number of lambda values. An integer-valued scalar
-specifying the number of lambda values to search over. Default is \eqn{100}.
-\emph{Note:} Is ignored if a vector of \code{lasso.lambda} values is
-provided.}
+specifying the number of lambda values to search over. Default is
+\eqn{100}. \emph{Note:} Is ignored if a vector of \code{lasso.lambda}
+values is provided.}
 
 \item{gb.interaction.depth}{GB interaction depth. An integer-valued vector
 whose values specify the interaction depth of GB. The interaction depth
@@ -277,8 +293,9 @@ observations that each terminal node of the trees must contain. Default is
 \eqn{20}.}
 
 \item{svm.kernel}{SVM kernel. A character-valued scalar specifying the kernel
-to be used by SVM. The possible values are \code{linear}, \code{polynomial},
-\code{radial}, and \code{sigmoid}. Default is \code{radial}.}
+to be used by SVM. The possible values are \code{linear},
+\code{polynomial}, \code{radial}, and \code{sigmoid}. Default is
+\code{radial}.}
 
 \item{svm.gamma}{SVM kernel parameter. A numeric vector whose values specify
 the gamma parameter in the SVM kernel. This parameter is needed for all

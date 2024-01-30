@@ -28,7 +28,11 @@ post_stratification(
   data,
   ebma.fold,
   census,
-  verbose
+  verbose,
+  deep.mrp,
+  deep.L2.x,
+  deep.L2.reg,
+  deep.splines
 )
 }
 \arguments{
@@ -43,7 +47,8 @@ is specified in argument \code{L2.unit}.}
 
 \item{L2.x}{Context-level covariates. A character vector containing the
 column names of the context-level variables in \code{survey} and
-\code{census} used to predict outcome \code{y}.}
+\code{census} used to predict outcome \code{y}. To exclude context-level
+variables, set \code{L2.x = NULL}.}
 
 \item{L2.unit}{Geographic unit. A character scalar containing the column
 name of the geographic unit in \code{survey} and \code{census} at which
@@ -117,7 +122,8 @@ the column names of the context-level variables in \code{survey} and
 \code{census} to be used by the MRP classifier. The character vector
 \emph{empty} if no context-level variables should be used by the MRP
 classifier. If \code{NULL} and \code{mrp} is set to \code{TRUE}, then MRP
-uses the variables specified in \code{L2.x}. Default is \code{NULL}.}
+uses the variables specified in \code{L2.x}. Default is \code{NULL}. Note:
+For the empty MrP model, set \code{L2.x = NULL} and \code{mrp.L2.x = ""}.}
 
 \item{data}{A data.frame containing the survey data used in classifier
 training.}
@@ -131,6 +137,23 @@ training.}
 
 \item{verbose}{Verbose output. A logical argument indicating whether or not
 verbose output should be printed. Default is \code{FALSE}.}
+
+\item{deep.mrp}{Deep MRP classifier. A logical argument indicating whether
+the deep MRP classifier should be used for predicting outcome \code{y}.
+Default is \code{FALSE}.}
+
+\item{deep.L2.x}{Deep MRP context-level covariates. A character vector
+containing the column names of the context-level variables in \code{survey}
+and \code{census} to be used by the deep MRP classifier. If \code{NULL} and
+\code{deep.mrp} is set to \code{TRUE}, then deep MRP uses the variables
+specified in \code{L2.x}. Default is \code{NULL}.}
+
+\item{deep.L2.reg}{Deep MRP L2.reg. A logical argument indicating whether
+\code{L2.reg} should be included in the deep MRP classifier. Default is
+\code{TRUE}.}
+
+\item{deep.splines}{Deep MRP splines. A logical argument indicating whether
+splines should be used in the deep MRP classifier. Default is \code{TRUE}.}
 }
 \description{
 Apply post-stratification to classifiers.

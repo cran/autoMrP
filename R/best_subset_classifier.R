@@ -3,6 +3,7 @@
 #' \code{best_subset_classifier} applies best subset classification to a data
 #' set.
 #'
+#' @inheritParams auto_MrP
 #' @param model Multilevel model. A model formula describing the multilevel
 #'   model to be estimated on the basis of the provided training data.
 #' @param data.train Training data. A data.frame containing the training data
@@ -18,52 +19,100 @@
 #'   verbose output should be printed.
 #' @return The multilevel model. An \code{\link[lme4]{glmer}} object.
 
-best_subset_classifier <- function(model, data.train,
-                                   model.family, model.optimizer,
-                                   n.iter, verbose = c(TRUE, FALSE)) {
+best_subset_classifier <- function(
+  model, data.train, model.family, model.optimizer, n.iter, y,
+  verbose = c(TRUE, FALSE)
+) {
+
+  # Determine type of dependent variable
+  if (
+    data.train %>%
+      dplyr::pull(!!y) %>%
+      unique() %>%
+      length() == 2
+  ) {
+    dv_type <- "binary"
+  } else {
+    dv_type <- "continuous"
+  }
+
   # Train model on training data
   if (isTRUE(verbose == TRUE)) {
-    # optimizer
-    if (model.optimizer == 'bobyqa'){
-      out <- lme4::glmer(formula =  model,
-                         data = data.train,
-                         family = model.family,
-                         lme4::glmerControl(
-                           optimizer = model.optimizer,
-                           optCtrl = list(maxfun = n.iter)))
-    } else if (model.optimizer == 'nloptwrap') {
-      out <- lme4::glmer(formula =  model,
-                         data = data.train,
-                         family = model.family,
-                         lme4::glmerControl(
-                           calc.derivs = FALSE,
-                           optimizer = model.optimizer,
-                           optCtrl = list(
-                             method = "NLOPT_LN_NELDERMEAD",
-                             starttests = TRUE, kkt = TRUE)))
+    # DV type
+    if (dv_type == "continuous") {
+      out <- lme4::lmer(
+        formula =  model,
+        data = data.train,
+      )
+    } else {
+      # optimizer
+      if (model.optimizer == "bobyqa") {
+        out <- lme4::glmer(
+          formula =  model,
+          data = data.train,
+          family = model.family,
+          lme4::glmerControl(
+            optimizer = model.optimizer,
+            optCtrl = list(maxfun = n.iter)
+          )
+        )
+      } else if (model.optimizer == "nloptwrap") {
+        out <- lme4::glmer(
+          formula =  model,
+          data = data.train,
+          family = model.family,
+          lme4::glmerControl(
+            calc.derivs = FALSE,
+            optimizer = model.optimizer,
+            optCtrl = list(
+              method = "NLOPT_LN_NELDERMEAD",
+              starttests = TRUE, kkt = TRUE
+            )
+          )
+        )
+      }
     }
   } else {
-    # optimizer
-    if (model.optimizer == 'bobyqa') {
+    # DV type
+    if (dv_type == "continuous") {
       out <- suppressMessages(suppressWarnings(
-        lme4::glmer(formula =  model,
-                    data = data.train,
-                    family = model.family,
-                    lme4::glmerControl(optimizer = model.optimizer,
-                                       optCtrl = list(maxfun = n.iter)))
+        lme4::lmer(
+          formula =  model,
+          data = data.train,
+        )
       ))
-    } else if (model.optimizer == 'nloptwrap') {
-      out <- suppressMessages(suppressWarnings(
-       lme4::glmer(formula =  model,
-                   data = data.train,
-                   family = model.family,
-                   lme4::glmerControl(
-                     calc.derivs = FALSE,
-                     optimizer = model.optimizer,
-                     optCtrl = list(
-                       method = "NLOPT_LN_NELDERMEAD",
-                       starttests = TRUE, kkt = TRUE)))
-      ))
+    } else {
+      # optimizer
+      if (model.optimizer == "bobyqa") {
+        out <- suppressMessages(suppressWarnings(
+          lme4::glmer(
+            formula =  model,
+            data = data.train,
+            family = model.family,
+            lme4::glmerControl(
+              optimizer = model.optimizer,
+              optCtrl = list(maxfun = n.iter)
+            )
+          )
+        ))
+      } else if (model.optimizer == "nloptwrap") {
+        out <- suppressMessages(suppressWarnings(
+          lme4::glmer(
+            formula =  model,
+            data = data.train,
+            family = model.family,
+            lme4::glmerControl(
+              calc.derivs = FALSE,
+              optimizer = model.optimizer,
+              optCtrl = list(
+                method = "NLOPT_LN_NELDERMEAD",
+                starttests = TRUE,
+                kkt = TRUE
+              )
+            )
+          )
+        ))
+      }
     }
   }
 

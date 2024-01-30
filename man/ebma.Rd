@@ -20,6 +20,7 @@ ebma(
   lasso.opt,
   gb.opt,
   svm.opt,
+  deep.mrp,
   verbose,
   cores
 )
@@ -39,7 +40,8 @@ is specified in argument \code{L2.unit}.}
 
 \item{L2.x}{Context-level covariates. A character vector containing the
 column names of the context-level variables in \code{survey} and
-\code{census} used to predict outcome \code{y}.}
+\code{census} used to predict outcome \code{y}. To exclude context-level
+variables, set \code{L2.x = NULL}.}
 
 \item{L2.unit}{Geographic unit. A character scalar containing the column
 name of the geographic unit in \code{survey} and \code{census} at which
@@ -82,6 +84,10 @@ returned from \code{run_pca()}.}
 
 \item{svm.opt}{Tuned support vector machine parameters. A list returned from
 \code{run_svm()}.}
+
+\item{deep.mrp}{Deep MRP classifier. A logical argument indicating whether
+the deep MRP classifier should be used for predicting outcome \code{y}.
+Default is \code{FALSE}.}
 
 \item{verbose}{Verbose output. A logical argument indicating whether or not
 verbose output should be printed. Default is \code{FALSE}.}

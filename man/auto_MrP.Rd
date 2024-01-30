@@ -18,7 +18,6 @@ auto_MrP(
   survey,
   census,
   ebma.size = 1/3,
-  stacking = FALSE,
   cores = 1,
   k.folds = 5,
   cv.sampling = "L2 units",
@@ -30,8 +29,8 @@ auto_MrP(
   gb = TRUE,
   svm = TRUE,
   mrp = FALSE,
+  deep.mrp = FALSE,
   oversampling = FALSE,
-  forward.select = FALSE,
   best.subset.L2.x = NULL,
   lasso.L2.x = NULL,
   pca.L2.x = NULL,
@@ -42,6 +41,9 @@ auto_MrP(
   gb.L2.reg = FALSE,
   svm.L2.unit = TRUE,
   svm.L2.reg = FALSE,
+  deep.L2.x = NULL,
+  deep.L2.reg = TRUE,
+  deep.splines = TRUE,
   lasso.lambda = NULL,
   lasso.n.iter = 100,
   gb.interaction.depth = c(1, 2, 3),
@@ -55,7 +57,6 @@ auto_MrP(
   svm.cost = NULL,
   ebma.n.draws = 100,
   ebma.tol = c(0.01, 0.005, 0.001, 5e-04, 1e-04, 5e-05, 1e-05),
-  seed = NULL,
   verbose = FALSE,
   uncertainty = FALSE,
   boot.iter = NULL
@@ -73,7 +74,8 @@ is specified in argument \code{L2.unit}.}
 
 \item{L2.x}{Context-level covariates. A character vector containing the
 column names of the context-level variables in \code{survey} and
-\code{census} used to predict outcome \code{y}.}
+\code{census} used to predict outcome \code{y}. To exclude context-level
+variables, set \code{L2.x = NULL}.}
 
 \item{L2.unit}{Geographic unit. A character scalar containing the column
 name of the geographic unit in \code{survey} and \code{census} at which
@@ -126,11 +128,6 @@ otherwise.}
 indicating the proportion of respondents to be allocated to the EBMA fold.
 Default is \eqn{1/3}. \emph{Note:} ignored if \code{folds} is provided, but
 must be specified otherwise.}
-
-\item{stacking}{Model averaging via stacking. Stacking is an alternative to
-EBMA. Default is \code{FALSE}. If set to TRUE a model ensemble is generated
-via stacking. \code{ebma.size} must be set to 0 if stacking is \code{TRUE}.
-Stacking is faster than EBMA.}
 
 \item{cores}{The number of cores to be used. An integer indicating the number
 of processor cores used for parallel computing. Default is 1.}
@@ -188,14 +185,12 @@ classifier should be used for predicting outcome \code{y}. Default is
 MRP classifier should be used for predicting outcome \code{y}. Default is
 \code{FALSE}.}
 
+\item{deep.mrp}{Deep MRP classifier. A logical argument indicating whether
+the deep MRP classifier should be used for predicting outcome \code{y}.
+Default is \code{FALSE}.}
+
 \item{oversampling}{Over sample to create balance on the dependent variable.
 A logical argument. Default is \code{FALSE}.}
-
-\item{forward.select}{Forward selection classifier. A logical argument
-indicating whether to use forward selection rather than best subset
-selection. Default is \code{FALSE}. \emph{Note:} forward selection is
-recommended if there are more than \eqn{8} context-level variables.
-\emph{Note:} forward selection is not implemented yet.}
 
 \item{best.subset.L2.x}{Best subset context-level covariates. A character
 vector containing the column names of the context-level variables in
@@ -233,7 +228,8 @@ the column names of the context-level variables in \code{survey} and
 \code{census} to be used by the MRP classifier. The character vector
 \emph{empty} if no context-level variables should be used by the MRP
 classifier. If \code{NULL} and \code{mrp} is set to \code{TRUE}, then MRP
-uses the variables specified in \code{L2.x}. Default is \code{NULL}.}
+uses the variables specified in \code{L2.x}. Default is \code{NULL}. Note:
+For the empty MrP model, set \code{L2.x = NULL} and \code{mrp.L2.x = ""}.}
 
 \item{gb.L2.unit}{GB L2.unit. A logical argument indicating whether
 \code{L2.unit} should be included in the GB classifier. Default is
@@ -251,6 +247,19 @@ uses the variables specified in \code{L2.x}. Default is \code{NULL}.}
 \code{L2.reg} should be included in the SVM classifier. Default is
 \code{FALSE}.}
 
+\item{deep.L2.x}{Deep MRP context-level covariates. A character vector
+containing the column names of the context-level variables in \code{survey}
+and \code{census} to be used by the deep MRP classifier. If \code{NULL} and
+\code{deep.mrp} is set to \code{TRUE}, then deep MRP uses the variables
+specified in \code{L2.x}. Default is \code{NULL}.}
+
+\item{deep.L2.reg}{Deep MRP L2.reg. A logical argument indicating whether
+\code{L2.reg} should be included in the deep MRP classifier. Default is
+\code{TRUE}.}
+
+\item{deep.splines}{Deep MRP splines. A logical argument indicating whether
+splines should be used in the deep MRP classifier. Default is \code{TRUE}.}
+
 \item{lasso.lambda}{Lasso penalty parameter. A numeric \code{vector} of
 non-negative values. The penalty parameter controls the shrinkage of the
 context-level variables in the lasso model. Default is a sequence with
@@ -258,9 +267,9 @@ minimum 0.1 and maximum 250 that is equally spaced on the log-scale. The
 number of values is controlled by the \code{lasso.n.iter} parameter.}
 
 \item{lasso.n.iter}{Lasso number of lambda values. An integer-valued scalar
-specifying the number of lambda values to search over. Default is \eqn{100}.
-\emph{Note:} Is ignored if a vector of \code{lasso.lambda} values is
-provided.}
+specifying the number of lambda values to search over. Default is
+\eqn{100}. \emph{Note:} Is ignored if a vector of \code{lasso.lambda}
+values is provided.}
 
 \item{gb.interaction.depth}{GB interaction depth. An integer-valued vector
 whose values specify the interaction depth of GB. The interaction depth
@@ -290,8 +299,9 @@ observations that each terminal node of the trees must contain. Default is
 \eqn{20}.}
 
 \item{svm.kernel}{SVM kernel. A character-valued scalar specifying the kernel
-to be used by SVM. The possible values are \code{linear}, \code{polynomial},
-\code{radial}, and \code{sigmoid}. Default is \code{radial}.}
+to be used by SVM. The possible values are \code{linear},
+\code{polynomial}, \code{radial}, and \code{sigmoid}. Default is
+\code{radial}.}
 
 \item{svm.gamma}{SVM kernel parameter. A numeric vector whose values specify
 the gamma parameter in the SVM kernel. This parameter is needed for all
@@ -311,10 +321,6 @@ tolerance values for improvements in the log-likelihood before the EM
 algorithm stops optimization. Values should range at least from \eqn{0.01}
 to \eqn{0.001}. Default is
 \code{c(0.01, 0.005, 0.001, 0.0005, 0.0001, 0.00005, 0.00001)}.}
-
-\item{seed}{Seed. Either \code{NULL} or an integer-valued scalar controlling
-random number generation. If \code{NULL}, then the seed is set to
-\eqn{546213978}. Default is \code{NULL}.}
 
 \item{verbose}{Verbose output. A logical argument indicating whether or not
 verbose output should be printed. Default is \code{FALSE}.}
@@ -347,9 +353,13 @@ Bootstrapping samples the level two units, sometimes referred to as
   bootstrapping and then comparing level two predictions from the model
   without bootstrapping to the median level two predictions from the model
   with bootstrapping.
+
+  To ensure reproducability of the results, use the \code{set.seed()}
+  function to specify a seed.
 }
 \examples{
 # An MrP model without machine learning
+set.seed(123)
 m <- auto_MrP(
   y = "YES",
   L1.x = c("L1x1"),
@@ -372,27 +382,28 @@ m <- auto_MrP(
 summary(m)
 plot(m)
 
-\donttest{
-# MrP model only:
-mrp_out <- auto_MrP(
+# An MrP model without context-level predictors
+m <- auto_MrP(
   y = "YES",
-  L1.x = c("L1x1", "L1x2", "L1x3"),
-  L2.x = c("L2.x1", "L2.x2", "L2.x3", "L2.x4", "L2.x5", "L2.x6"),
+  L1.x = "L1x1",
+  L2.x = NULL,
+  mrp.L2.x = "",
   L2.unit = "state",
-  L2.reg = "region",
   bin.proportion = "proportion",
   survey = taxes_survey,
   census = taxes_census,
   ebma.size = 0,
+  cores = 1,
   best.subset = FALSE,
   lasso = FALSE,
   pca = FALSE,
   gb = FALSE,
   svm = FALSE,
   mrp = TRUE
-)
+  )
 
-# Predictions through machine learning
+\donttest{
+# Predictions with machine learning
 
 # detect number of available cores
 max_cores <- parallel::detectCores()

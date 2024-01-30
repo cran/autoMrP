@@ -5,6 +5,7 @@
 \title{SVM classifier}
 \usage{
 svm_classifier(
+  y,
   form,
   data,
   kernel,
@@ -16,6 +17,10 @@ svm_classifier(
 )
 }
 \arguments{
+\item{y}{Outcome variable. A character vector containing the column names of
+the outcome variable. A character scalar containing the column name of
+the outcome variable in \code{survey}.}
+
 \item{form}{Model formula. A two-sided linear formula describing
 the model to be fit, with the outcome on the LHS and the covariates
 separated by + operators on the RHS.}
@@ -27,7 +32,11 @@ train and evaluate the model.}
 be used for SVM. The possible types are linear, polynomial, radial, and
 sigmoid. Default is radial.}
 
-\item{type}{svm can be used as a classification machine, as a regression machine, or for novelty detection. Depending of whether y is a factor or not, the default setting for type is C-classification or eps-regression, respectively, but may be overwritten by setting an explicit value. Valid options are: #' \enumerate{
+\item{type}{svm can be used as a classification machine, as a regression
+  machine, or for novelty detection. Depending of whether y is a factor or
+  not, the default setting for type is C-classification or eps-regression,
+  respectively, but may be overwritten by setting an explicit value. Valid
+  options are: #' \enumerate{
   \item C-classification
   \item nu-classification
   \item one-classification (for novelty detection)

@@ -10,6 +10,7 @@ lasso_classifier(
   data.train,
   lambda,
   model.family,
+  y,
   verbose = c(TRUE, FALSE)
 )
 }
@@ -30,11 +31,16 @@ the shrinkage of fixed effects.}
 \item{model.family}{Model family. A variable indicating the model family
 to be used by glmmLasso. Defaults to binomial(link = "probit").}
 
+\item{y}{Outcome variable. A character vector containing the column names of
+the outcome variable. A character scalar containing the column name of
+the outcome variable in \code{survey}.}
+
 \item{verbose}{Verbose output. A logical vector indicating whether or not
 verbose output should be printed.}
 }
 \value{
-A multilevel lasso model. An \code{\link[glmmLasso]{glmmLasso}} object.
+A multilevel lasso model. An \code{\link[glmmLasso]{glmmLasso}}
+  object.
 }
 \description{
 \code{lasso_classifier} applies lasso classification to a data set.

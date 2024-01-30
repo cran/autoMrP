@@ -20,15 +20,18 @@ ebma_mc_tol(
   model.gb,
   model.svm,
   model.mrp,
+  model_deep,
   tol,
   n.draws,
   cores
 )
 }
 \arguments{
-\item{train.preds}{Predictions of classifiers on the classifier training data. A tibble.}
+\item{train.preds}{Predictions of classifiers on the classifier training
+data. A tibble.}
 
-\item{train.y}{Outcome variable of the classifier training data. A numeric vector.}
+\item{train.y}{Outcome variable of the classifier training data. A numeric
+vector.}
 
 \item{ebma.fold}{The data used for EBMA tuning. A tibble.}
 
@@ -43,7 +46,8 @@ is specified in argument \code{L2.unit}.}
 
 \item{L2.x}{Context-level covariates. A character vector containing the
 column names of the context-level variables in \code{survey} and
-\code{census} used to predict outcome \code{y}.}
+\code{census} used to predict outcome \code{y}. To exclude context-level
+variables, set \code{L2.x = NULL}.}
 
 \item{L2.unit}{Geographic unit. A character scalar containing the column
 name of the geographic unit in \code{survey} and \code{census} at which
@@ -74,6 +78,9 @@ regularization classifier. A \code{\link[glmmLasso]{glmmLasso}} object.}
 An \code{\link[e1071]{svm}} object.}
 
 \item{model.mrp}{The standard MrP model. An \code{\link[lme4]{glmer}} object}
+
+\item{model_deep}{The tuned model from the deep mrp classifier. An
+\code{\link[vglmer]{vglmer}} object.}
 
 \item{tol}{The tolerance values used for EBMA. A numeric vector.}
 
